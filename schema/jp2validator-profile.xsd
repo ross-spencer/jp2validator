@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://tna.gov.uk/dp/jp2validator/profile"
+    targetNamespace="http://tna.gov.uk/dp/jp2validator/profile"
+    elementFormDefault="qualified"
+    version="1.0">
+    
+    <xs:annotation>
+        <xs:documentation>
+            <div xmlns="http://www.w3.org/1999/xhtml">
+                <h1>Profile document for jp2analyzer</h1>
+                <p>Profile may be specified as input to the jp2analyzer, or alternatively may also used as the output from the jp2analyzer.</p>
+            </div>
+        </xs:documentation>
+    </xs:annotation>
+    
+    <xs:element name="profiles">
+        <xs:annotation>
+            <xs:documentation>A set of Profiles, used when profiling a directory of jp2 images</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="profile" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="profile" type="profileType">
+        <xs:annotation>
+            <xs:documentation>A Profile either describing requirements for a JP2 or the result or profiling a JP2</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    
+    <xs:complexType name="profileType">
+       <xs:all>
+            <xs:element name="layers" type="layersMeasureType" minOccurs="0"/>
+            <xs:element name="levels" type="levelsMeasureType" minOccurs="0"/>
+            <xs:element name="progression-order" type="progressionOrderType" minOccurs="0"/>
+            <xs:element name="tiles" type="xs:integer" fixed="1" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Fixed to 1 currently.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- xs:element name="regions-of-interest" type="measureType"/>
+            <xs:element name="tlm-markers" type="measureType"/>
+            <xs:element name="precints" type="measureType"/ -->
+            <xs:element name="colour-space" type="colourSpaceType" minOccurs="0"/>
+            <xs:element name="bypass" type="selectiveType" minOccurs="0"/>
+            <xs:element name="transform" type="transformType" minOccurs="0"/>
+            <xs:element name="xml-box-content" type="xmlBoxContent" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Only populated when a Profile is output from jp2validator with the XML Box parameter enabled.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+       </xs:all>
+        <xs:attribute name="href" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>When profiling a jp2, provides the filepath of the file that was profiled.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:simpleType name="transformType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="9-7">
+                <xs:annotation>
+                    <xs:documentation>Irreversible filter</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="5-3">
+                <xs:annotation>
+                    <xs:documentation>Reversible filter</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reserved">
+                <xs:annotation>
+                    <xs:documentation>All other values are reserved for future use</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="selectiveType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="selective"/>
+            <xs:enumeration value="non-selective"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="xmlBoxContent">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    
+    <xs:simpleType name="progressionOrderType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="LRCP">
+                <xs:annotation>
+                    <xs:documentation>Layer-Resolution Level-Component-Position Progression</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="RLCP">
+                <xs:annotation>
+                    <xs:documentation>Resolution-Level Layer-Component-Position Progression</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="RPCL">
+                <xs:annotation>
+                    <xs:documentation>Resolution-Level Position-Component-Layer Progression</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="PCRL">
+                <xs:annotation>
+                    <xs:documentation>Position-Component-Resolution Level-Layer Progression</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CPRL">
+                <xs:annotation>
+                    <xs:documentation>Component-Position-Resolution Level-Layer Progression</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="reserved">
+                <xs:annotation>
+                    <xs:documentation>All other values are reserved for future use</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="colourSpaceType">
+        <xs:sequence>
+            <xs:element name="enumerated" type="enumeratedColourSpaceType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="enumeratedColourSpaceType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="sRGB"/>
+            <xs:enumeration value="greyscale"/>
+            <xs:enumeration value="reserved"/>
+            <xs:enumeration value="sYCC" />
+				<xs:enumeration value="Restricted ICC Profile" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="measureType" abstract="true">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="exactly" type="measureValueType"/>
+                <xs:sequence>
+                    <xs:element name="minimum" type="measureValueType"/>
+                    <xs:element name="maximum" type="measureValueType"/>
+                </xs:sequence>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="measureValueType">
+        <xs:restriction base="xs:integer"/>
+    </xs:simpleType>
+    
+    <xs:complexType name="layersMeasureType">
+        <xs:complexContent>
+            <xs:restriction base="measureType">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="exactly" type="layerMeasureValueType"/>
+                        <xs:sequence>
+                            <xs:element name="minimum" type="layerMeasureValueType"/>
+                            <xs:element name="maximum" type="layerMeasureValueType"/>
+                        </xs:sequence>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="layerMeasureValueType">
+        <xs:restriction base="measureValueType">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="65535"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="levelsMeasureType">
+        <xs:complexContent>
+            <xs:restriction base="measureType">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="exactly" type="levelMeasureValueType"/>
+                        <xs:sequence>
+                            <xs:element name="minimum" type="levelMeasureValueType"/>
+                            <xs:element name="maximum" type="levelMeasureValueType"/>
+                        </xs:sequence>
+                    </xs:choice>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="levelMeasureValueType">
+        <xs:restriction base="measureValueType">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="32"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+</xs:schema>
